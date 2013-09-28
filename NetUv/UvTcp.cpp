@@ -27,11 +27,11 @@ namespace NetUv
 
             if (status != 0)
             {
-                target->_connectCb(target, UvException::CreateFrom(tcp->loop));
+                target->_callback(target, UvException::CreateFrom(tcp->loop));
             }
             else
             {
-                target->_connectCb(target, nullptr);
+                target->_callback(target, nullptr);
             }
         }
         finally
@@ -40,7 +40,7 @@ namespace NetUv
         }
     }
 
-    void UvTcp::Connect(String^ ip, int port, UvTcpConnectCb^ callback)
+    void UvTcp::Connect(String^ ip, int port, UvTcpCb^ callback)
     {
         struct sockaddr_in address = Ip4Address(ip, port);
         uv_connect_t* connect = new uv_connect_t();
@@ -53,10 +53,62 @@ namespace NetUv
             return;
         }
 
-        _connectCb = callback;
+        _callback = callback;
 
         GCHandle handle = GCHandle::Alloc(this);
         _tcp->data = GCHandle::ToIntPtr(handle).ToPointer();
+    }
+
+    void ListenCb(uv_stream_t* server, int status)
+    {
+        uv_tcp_t* tcp = (uv_tcp_t*)server;
+
+        GCHandle handle = GCHandle::FromIntPtr(IntPtr(tcp->data));
+
+        try
+        {
+            UvTcp^ target = (UvTcp^)handle.Target;
+
+            if (status != 0)
+            {
+                target->_callback(target, UvException::CreateFrom(tcp->loop));
+            }
+            else
+            {
+                target->_callback(target, nullptr);
+            }
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
+    void UvTcp::Listen(String^ ip, int port, int backlog, UvTcpCb^ callback)
+    {
+        struct sockaddr_in address = Ip4Address(ip, port);
+
+        if (uv_tcp_bind(_tcp, address) != 0)
+        {
+            callback(this, UvException::CreateFrom(_loop));
+            return;
+        }
+
+        if (uv_listen((uv_stream_t*)_tcp, backlog, ListenCb) != 0)
+        {
+            callback(this, UvException::CreateFrom(_loop));
+            return;
+        }
+
+        _callback = callback;
+
+        GCHandle handle = GCHandle::Alloc(this);
+        _tcp->data = GCHandle::ToIntPtr(handle).ToPointer();
+    }
+
+    void UvTcp::Close()
+    {
+        uv_close((uv_handle_t*)_tcp, NULL);
     }
 
     struct sockaddr_in UvTcp::Ip4Address(String^ ip, int port)

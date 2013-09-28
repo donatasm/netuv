@@ -7,16 +7,18 @@ using namespace System::Runtime::InteropServices;
 namespace NetUv
 {
     ref class UvTcp;
-    public delegate void UvTcpConnectCb(UvTcp^ tcp, Exception^ exception);
+    public delegate void UvTcpCb(UvTcp^ tcp, Exception^ exception);
 
     public ref class UvTcp sealed
     {
     public:
         ~UvTcp();
-        void Connect(String^ ip, int port, UvTcpConnectCb^ callback);
+        void Connect(String^ ip, int port, UvTcpCb^ callback);
+        void Listen(String^ ip, int port, int backlog, UvTcpCb^ callback);
+        void Close();
     internal:
         UvTcp(uv_loop_t* loop);
-        UvTcpConnectCb^ _connectCb;
+        UvTcpCb^ _callback;
     private:
         uv_tcp_t* _tcp;
         uv_loop_t* _loop;
