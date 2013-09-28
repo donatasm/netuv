@@ -1,8 +1,47 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libuv", "libuv\libuv.vcxproj", "{33066374-88CB-CB8D-15DA-61032886329A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetUv", "NetUv\NetUv.vcxproj", "{F69BC2FC-DDF0-446A-B3DD-20DA0FEB25F8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{1F60826D-B2F4-4791-AC5D-E0AD402CC039}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".test", ".test", "{88BC5C1F-9448-4675-BC3F-621D693D8A08}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetUv.Test", "NetUv.Test\NetUv.Test.csproj", "{DA20A537-210A-4826-86CD-463A0372C41B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".lib", ".lib", "{F72CF61C-1FBA-4F82-B9E1-348BEEBAE8A2}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33066374-88CB-CB8D-15DA-61032886329A}.Debug|x64.ActiveCfg = Debug|x64
+		{33066374-88CB-CB8D-15DA-61032886329A}.Debug|x64.Build.0 = Debug|x64
+		{33066374-88CB-CB8D-15DA-61032886329A}.Release|x64.ActiveCfg = Release|x64
+		{33066374-88CB-CB8D-15DA-61032886329A}.Release|x64.Build.0 = Release|x64
+		{F69BC2FC-DDF0-446A-B3DD-20DA0FEB25F8}.Debug|x64.ActiveCfg = Debug|x64
+		{F69BC2FC-DDF0-446A-B3DD-20DA0FEB25F8}.Debug|x64.Build.0 = Debug|x64
+		{F69BC2FC-DDF0-446A-B3DD-20DA0FEB25F8}.Release|x64.ActiveCfg = Release|x64
+		{F69BC2FC-DDF0-446A-B3DD-20DA0FEB25F8}.Release|x64.Build.0 = Release|x64
+		{DA20A537-210A-4826-86CD-463A0372C41B}.Debug|x64.ActiveCfg = Debug|x64
+		{DA20A537-210A-4826-86CD-463A0372C41B}.Debug|x64.Build.0 = Debug|x64
+		{DA20A537-210A-4826-86CD-463A0372C41B}.Release|x64.ActiveCfg = Release|x64
+		{DA20A537-210A-4826-86CD-463A0372C41B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{DA20A537-210A-4826-86CD-463A0372C41B} = {88BC5C1F-9448-4675-BC3F-621D693D8A08}
+		{33066374-88CB-CB8D-15DA-61032886329A} = {F72CF61C-1FBA-4F82-B9E1-348BEEBAE8A2}
 	EndGlobalSection
 EndGlobal
