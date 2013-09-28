@@ -31,13 +31,4 @@ namespace NetUv.Test
             }
         }
     }
-
-    [TestFixture]
-    internal sealed class UvTcpTest
-    {
-        [Test]
-        public void ConnectThrowsUvException()
-        {
-        }
-    }
 }

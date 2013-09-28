@@ -73,6 +73,7 @@
     <ClInclude Include="NetUv.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="UvException.cpp" />
     <ClCompile Include="UvLoop.cpp" />
     <ClCompile Include="UvTcp.cpp" />
   </ItemGroup>
@@ -80,6 +81,9 @@
     <ProjectReference Include="..\libuv\libuv.vcxproj">
       <Project>{33066374-88cb-cb8d-15da-61032886329a}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
