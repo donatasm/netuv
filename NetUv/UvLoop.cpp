@@ -9,7 +9,11 @@ namespace NetUv
 
     UvLoop::~UvLoop()
     {
-        uv_loop_delete(_loop);
+        if (_loop != NULL)
+        {
+            uv_loop_delete(_loop);
+            _loop = NULL;
+        }
     }
 
     void UvLoop::Run()

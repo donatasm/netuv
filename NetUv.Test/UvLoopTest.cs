@@ -30,5 +30,15 @@ namespace NetUv.Test
             {
             }
         }
+
+        [Test]
+        public void Dispose()
+        {
+            using (var loop = new UvLoop())
+            {
+                loop.Dispose();
+                loop.Dispose();
+            }
+        }
     }
 }

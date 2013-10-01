@@ -65,5 +65,16 @@ namespace NetUv.Test
                 Assert.That(connectCallbackCalled);
             }
         }
+
+        [Test]
+        public void Dispose()
+        {
+            using (var loop = new UvLoop())
+            using (var tcp = loop.InitUvTcp())
+            {
+                tcp.Dispose();
+                tcp.Dispose();
+            }
+        }
     }
 }

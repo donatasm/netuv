@@ -11,7 +11,11 @@ namespace NetUv
 
     UvTcp::~UvTcp()
     {
-        delete _tcp;
+        if (_tcp != NULL)
+        {
+            delete _tcp;
+            _tcp = NULL;
+        }
     }
 
     void ConnectCb(uv_connect_t* connect, int status)
