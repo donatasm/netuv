@@ -8,17 +8,19 @@ namespace NetUv
 {
     ref class UvTcp;
     public delegate void UvTcpCb(UvTcp^ tcp, Exception^ exception);
+    public delegate void UvCloseCb(IDisposable^ handle);
 
     public ref class UvTcp sealed
     {
     public:
         ~UvTcp();
-        void Connect(String^ ip, int port, UvTcpCb^ callback);
-        void Listen(String^ ip, int port, int backlog, UvTcpCb^ callback);
-        void Close();
+        void Connect(String^ ip, int port, UvTcpCb^ tcpCb);
+        void Listen(String^ ip, int port, int backlog, UvTcpCb^ tcpCb);
+        void Close(UvCloseCb^ closeCb);
     internal:
         UvTcp(uv_loop_t* loop);
-        UvTcpCb^ _callback;
+        UvTcpCb^ _tcpCb;
+        UvCloseCb^ _closeCb;
     private:
         uv_tcp_t* _tcp;
         uv_loop_t* _loop;

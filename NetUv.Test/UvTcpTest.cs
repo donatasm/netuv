@@ -42,19 +42,30 @@ namespace NetUv.Test
                 UvException clientException = null;
                 var listenCallbackCalled = false;
                 var connectCallbackCalled = false;
+                var serverCloseCallbackCalled = false;
+                var clientCloseCallbackCalled = false;
 
-                server.Listen("0.0.0.0", port, 4,
+                server.Listen("0.0.0.0", port, 1,
                     (tcp, exception) =>
                         {
                             serverException = (UvException)exception;
-                            tcp.Close();
                             listenCallbackCalled = true;
+                            tcp.Close(handle =>
+                                          {
+                                              serverCloseCallbackCalled = true;
+                                              handle.Dispose();
+                                          });
                         });
                 client.Connect("127.0.0.1", port,
                     (tcp, exception) =>
                         {
                             clientException = (UvException)exception;
                             connectCallbackCalled = true;
+                            tcp.Close(handle =>
+                                          {
+                                              clientCloseCallbackCalled = true;
+                                              handle.Dispose();
+                                          });
                         });
 
                 loop.Run();
@@ -63,6 +74,8 @@ namespace NetUv.Test
                 Assert.IsNull(clientException);
                 Assert.That(listenCallbackCalled);
                 Assert.That(connectCallbackCalled);
+                Assert.That(serverCloseCallbackCalled);
+                Assert.That(clientCloseCallbackCalled);
             }
         }
 
