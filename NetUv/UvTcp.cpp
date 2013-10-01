@@ -2,19 +2,34 @@
 
 namespace NetUv
 {
-    UvTcp::UvTcp(uv_loop_t* loop)
+    UvTcp::UvTcp(uv_tcp_t* tcp)
+        : UvStream((uv_stream_t*)tcp)
     {
-        _loop = loop;
-        _tcp = new uv_tcp_t();
-        uv_tcp_init(loop, _tcp);
+        _tcp = tcp;
     }
 
     UvTcp::~UvTcp()
+    {
+        FreeHandle();
+        this->!UvTcp();
+    }
+
+    UvTcp::!UvTcp()
     {
         if (_tcp != NULL)
         {
             delete _tcp;
             _tcp = NULL;
+        }
+    }
+
+    void UvTcp::Bind(String^ ip, int port)
+    {
+        struct sockaddr_in address = Ip4Address(ip, port);
+
+        if (uv_tcp_bind(_tcp, address) != 0)
+        {
+            UvException::Throw(_tcp->loop);
         }
     }
 
@@ -24,27 +39,19 @@ namespace NetUv
         delete connect;
 
         GCHandle gcHandle = GCHandle::FromIntPtr(IntPtr(tcp->data));
+        UvTcp^ target = (UvTcp^)gcHandle.Target;
 
-        try
+        if (status != 0)
         {
-            UvTcp^ target = (UvTcp^)gcHandle.Target;
-
-            if (status != 0)
-            {
-                target->_tcpCb(target, UvException::CreateFrom(tcp->loop));
-            }
-            else
-            {
-                target->_tcpCb(target, nullptr);
-            }
+            target->_connectCb(target, UvException::CreateFrom(tcp->loop));
         }
-        finally
+        else
         {
-            gcHandle.Free();
+            target->_connectCb(target, nullptr);
         }
     }
 
-    void UvTcp::Connect(String^ ip, int port, UvTcpCb^ tcpCb)
+    void UvTcp::Connect(String^ ip, int port, UvTcpCb^ connectCb)
     {
         struct sockaddr_in address = Ip4Address(ip, port);
         uv_connect_t* connect = new uv_connect_t();
@@ -53,89 +60,13 @@ namespace NetUv
         if (uv_tcp_connect(connect, _tcp, address, ConnectCb) != 0)
         {
             delete connect;
-            tcpCb(this, UvException::CreateFrom(_loop));
-            return;
+            UvException::Throw(_tcp->loop);
         }
 
-        _tcpCb = tcpCb;
+        _connectCb = connectCb;
 
         GCHandle gcHandle = GCHandle::Alloc(this);
         _tcp->data = GCHandle::ToIntPtr(gcHandle).ToPointer();
-    }
-
-    void ListenCb(uv_stream_t* server, int status)
-    {
-        uv_tcp_t* tcp = (uv_tcp_t*)server;
-
-        GCHandle gcHandle = GCHandle::FromIntPtr(IntPtr(tcp->data));
-
-        try
-        {
-            UvTcp^ target = (UvTcp^)gcHandle.Target;
-
-            if (status != 0)
-            {
-                target->_tcpCb(target, UvException::CreateFrom(tcp->loop));
-            }
-            else
-            {
-                target->_tcpCb(target, nullptr);
-            }
-        }
-        finally
-        {
-            gcHandle.Free();
-        }
-    }
-
-    void UvTcp::Listen(String^ ip, int port, int backlog, UvTcpCb^ tcpCb)
-    {
-        struct sockaddr_in address = Ip4Address(ip, port);
-
-        if (uv_tcp_bind(_tcp, address) != 0)
-        {
-            tcpCb(this, UvException::CreateFrom(_loop));
-            return;
-        }
-
-        if (uv_listen((uv_stream_t*)_tcp, backlog, ListenCb) != 0)
-        {
-            tcpCb(this, UvException::CreateFrom(_loop));
-            return;
-        }
-
-        _tcpCb = tcpCb;
-
-        GCHandle gcHandle = GCHandle::Alloc(this);
-        _tcp->data = GCHandle::ToIntPtr(gcHandle).ToPointer();
-    }
-
-    void CloseCb(uv_handle_t* handle)
-    {
-        uv_tcp_t* tcp = (uv_tcp_t*)handle;
-
-        GCHandle gcHandle = GCHandle::FromIntPtr(IntPtr(tcp->data));
-
-        try
-        {
-            UvTcp^ target = (UvTcp^)gcHandle.Target;
-
-            target->_closeCb(target);
-        }
-        finally
-        {
-            gcHandle.Free();
-        }
-    }
-
-    void UvTcp::Close(UvCloseCb^ closeCb)
-    {
-        uv_close((uv_handle_t*)_tcp, CloseCb);
-
-        _closeCb = closeCb;
-
-        GCHandle handle = GCHandle::Alloc(this);
-        _tcp->data = GCHandle::ToIntPtr(handle).ToPointer();
     }
 
     struct sockaddr_in UvTcp::Ip4Address(String^ ip, int port)

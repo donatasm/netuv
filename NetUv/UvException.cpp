@@ -2,10 +2,10 @@
 
 namespace NetUv
 {
-    UvException::UvException(String^ message, String^ errorName)
+    UvException::UvException(String^ message, String^ error)
         : Exception(message)
     {
-        _errorName = errorName;
+        _error = error;
     }
 
     UvException^ UvException::CreateFrom(uv_loop_t* loop)
@@ -21,8 +21,8 @@ namespace NetUv
         throw CreateFrom(loop);
     }
 
-    String^ UvException::ErrorName::get()
+    String^ UvException::Error::get()
     {
-        return _errorName;
+        return _error;
     }
 }

@@ -8,44 +8,52 @@ namespace NetUv.Test
         [Test]
         public void ConnectThrowsUvException()
         {
-            using (var loop = new UvLoop())
-            using (var client = loop.InitUvTcp())
-            {
-                UvException uvException = null;
-                UvTcp uvTcp = null;
+            UvException uvException = null;
+            UvTcp uvTcp = null;
+            var tcpClosed = false;
 
+            using (var loop = new UvLoop())
+            {
+                var client = loop.InitUvTcp();
                 client.Connect("127.0.0.1", 1337,
                     (tcp, exception) =>
                         {
                             uvTcp = tcp;
                             uvException = (UvException)exception;
+                            tcp.Close(handle =>
+                                {
+                                    tcpClosed = true;
+                                    handle.Dispose();
+                                });
                         });
 
                 loop.Run();
-
-                Assert.IsNotNull(uvTcp);
-                Assert.IsNotNull(uvException);
-                Assert.AreEqual("ECONNREFUSED", uvException.ErrorName);
             }
+
+            Assert.IsNotNull(uvTcp);
+            Assert.IsNotNull(uvException);
+            Assert.AreEqual("ECONNREFUSED", uvException.Error);
+            Assert.That(tcpClosed);
         }
 
         [Test]
         public void ListenCloseAfterConnect()
         {
-            const int port = 1337;
+            UvException serverException = null;
+            UvException clientException = null;
+            var listenCallbackCalled = false;
+            var connectCallbackCalled = false;
+            var serverCloseCallbackCalled = false;
+            var clientCloseCallbackCalled = false;
 
             using (var loop = new UvLoop())
-            using (var server = loop.InitUvTcp())
-            using (var client = loop.InitUvTcp())
             {
-                UvException serverException = null;
-                UvException clientException = null;
-                var listenCallbackCalled = false;
-                var connectCallbackCalled = false;
-                var serverCloseCallbackCalled = false;
-                var clientCloseCallbackCalled = false;
+                const int port = 1337;
+                const int backlog = 1;
 
-                server.Listen("0.0.0.0", port, 1,
+                var server = loop.InitUvTcp();
+                server.Bind("0.0.0.0", port);
+                server.Listen(backlog,
                     (tcp, exception) =>
                         {
                             serverException = (UvException)exception;
@@ -56,6 +64,8 @@ namespace NetUv.Test
                                               handle.Dispose();
                                           });
                         });
+
+                var client = loop.InitUvTcp();
                 client.Connect("127.0.0.1", port,
                     (tcp, exception) =>
                         {
@@ -69,25 +79,14 @@ namespace NetUv.Test
                         });
 
                 loop.Run();
-
-                Assert.IsNull(serverException);
-                Assert.IsNull(clientException);
-                Assert.That(listenCallbackCalled);
-                Assert.That(connectCallbackCalled);
-                Assert.That(serverCloseCallbackCalled);
-                Assert.That(clientCloseCallbackCalled);
             }
-        }
 
-        [Test]
-        public void Dispose()
-        {
-            using (var loop = new UvLoop())
-            using (var tcp = loop.InitUvTcp())
-            {
-                tcp.Dispose();
-                tcp.Dispose();
-            }
+            Assert.IsNull(serverException);
+            Assert.IsNull(clientException);
+            Assert.That(listenCallbackCalled);
+            Assert.That(connectCallbackCalled);
+            Assert.That(serverCloseCallbackCalled);
+            Assert.That(clientCloseCallbackCalled);
         }
     }
 }

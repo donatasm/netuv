@@ -9,6 +9,11 @@ namespace NetUv
 
     UvLoop::~UvLoop()
     {
+        this->!UvLoop();
+    }
+
+    UvLoop::!UvLoop()
+    {
         if (_loop != NULL)
         {
             uv_loop_delete(_loop);
@@ -23,6 +28,14 @@ namespace NetUv
 
     UvTcp^ UvLoop::InitUvTcp()
     {
-        return gcnew UvTcp(_loop);
+        uv_tcp_t* tcp = new uv_tcp_t();
+
+        if (uv_tcp_init(_loop, tcp) != 0)
+        {
+            delete tcp;
+            UvException::Throw(_loop);
+        }
+
+        return gcnew UvTcp(tcp);
     }
 }

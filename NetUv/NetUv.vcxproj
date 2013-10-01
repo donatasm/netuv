@@ -73,8 +73,11 @@
     <ClInclude Include="NetUv.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="UvBuffer.cpp" />
     <ClCompile Include="UvException.cpp" />
+    <ClCompile Include="UvHandle.cpp" />
     <ClCompile Include="UvLoop.cpp" />
+    <ClCompile Include="UvStream.cpp" />
     <ClCompile Include="UvTcp.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="UvLoopTest.cs" />
+    <Compile Include="UvTcpPingPongTest.cs" />
     <Compile Include="UvTcpTest.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -21,24 +21,5 @@ namespace NetUv.Test
                 loop.Run();
             }
         }
-
-        [Test]
-        public void InitUvTcp()
-        {
-            using (var loop = new UvLoop())
-            using (loop.InitUvTcp())
-            {
-            }
-        }
-
-        [Test]
-        public void Dispose()
-        {
-            using (var loop = new UvLoop())
-            {
-                loop.Dispose();
-                loop.Dispose();
-            }
-        }
     }
 }
