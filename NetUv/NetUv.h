@@ -48,12 +48,14 @@ namespace NetUv
         void Listen(int backlog, UvStreamCb^ listenCb);
         void Write(UvBuffer^ buffer, UvStreamCb^ writeCb);
         void ReadStart(UvAllocCb^ allocCb, UvStreamReadCb^ readCb);
+        void Shutdown(UvStreamCb^ shutdownCb);
     internal:
         UvStream(uv_stream_t* stream);
         UvStreamCb^ _listenCb;
         UvStreamCb^ _writeCb;
         UvStreamReadCb^ _readCb;
         UvAllocCb^ _allocCb;
+        UvStreamCb^ _shutdownCb;
         GCHandle _gcWriteBuf;
         GCHandle _gcReadBuf;
     private:

@@ -150,4 +150,38 @@ namespace NetUv
 
         _stream->data = GetHandlePointer();
     }
+
+    void ShutdownCb(uv_shutdown_t* shutdown, int status)
+    {
+        uv_stream_t* stream = (uv_stream_t*)shutdown->data;
+        delete shutdown;
+
+        GCHandle gcThis = GCHandle::FromIntPtr(IntPtr(stream->data));
+        UvStream^ target = (UvStream^)gcThis.Target;
+
+        if (status != 0)
+        {
+            target->_shutdownCb(target, UvException::CreateFrom(stream->loop));
+        }
+        else
+        {
+            target->_shutdownCb(target, nullptr);
+        }
+    }
+
+    void UvStream::Shutdown(UvStreamCb^ shutdownCb)
+    {
+        uv_shutdown_t* shutdown = new uv_shutdown_t();
+        shutdown->data = _stream;
+
+        if (uv_shutdown(shutdown, _stream, ShutdownCb) != 0)
+        {
+            delete shutdown;
+            UvException::Throw(_stream->loop);
+        }
+
+        _shutdownCb = shutdownCb;
+
+        _stream->data = GetHandlePointer();
+    }
 }
