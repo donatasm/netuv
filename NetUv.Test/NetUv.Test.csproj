@@ -38,6 +38,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="UvBufferTest.cs" />
     <Compile Include="UvLoopTest.cs" />
     <Compile Include="UvTcpPingPongTest.cs" />
     <Compile Include="UvTcpTest.cs" />
