@@ -24,7 +24,9 @@ namespace NetUv.Test
         private UvTcp _client;
         private UvLoop _loop;
 
-        private int _currentCount;
+        private int _pingReadCount;
+        private int _pongReadCount;
+
         private int _serverClose;
         private int _acceptClose;
         private int _clientClose;
@@ -41,7 +43,8 @@ namespace NetUv.Test
 
             _loop.Run();
 
-            Assert.AreEqual(Count, _currentCount);
+            Assert.AreEqual(Count, _pingReadCount);
+            Assert.AreEqual(Count, _pongReadCount);
             Assert.AreEqual(1, _serverClose);
             Assert.AreEqual(1, _acceptClose);
             Assert.AreEqual(1, _clientClose);
@@ -60,9 +63,9 @@ namespace NetUv.Test
             _accept.ReadStart(PingAllocCb, PingReadCb);
         }
 
-        private UvBuffer PingAllocCb(int suggestedbuffersize)
+        private UvBuffer PingAllocCb(int suggestedBuffersize)
         {
-            var offset = _currentCount * Ping.Length;
+            var offset = _pingReadCount * Ping.Length;
             var count = Ping.Length;
 
             Debug.WriteLine("[Server]: PingAllocCb offset={0} count={1}",
@@ -75,47 +78,43 @@ namespace NetUv.Test
         {
             Debug.WriteLine("[Server]: PingReadCb read={0}", read);
 
-            if (read < 0)
-            {
-                Debug.WriteLine("[Server]: Close");
-                server.Close(handle =>
-                                {
-                                    handle.Dispose();
-                                    Assert.Fail("Ping read failed.");
-                                });
-            }
+            Assert.AreEqual(Ping.Length, read);
 
-            if (read == 0)
-            {
-                return;
-            }
+            server.ReadStop();
+            _pingReadCount++;
 
-            if (_currentCount < Count)
-            {
-                Debug.WriteLine("[Server]: Write Pong");
-                server.Write(new UvBuffer(Pong, 0, Pong.Length), PongWriteCb);
-            }
-            else
-            {
-                Debug.WriteLine("[Server]: Close");
-                server.Close(handle =>
-                                 {
-                                     handle.Dispose();
-                                     _acceptClose++;
-                                 });
-                _server.Close(handle =>
-                                  {
-                                      handle.Dispose();
-                                      _serverClose++;
-                                  });
-            }
+            server.Write(new UvBuffer(Pong, 0, Pong.Length), PongWriteCb);
         }
 
-        private static void PongWriteCb(UvStream server, Exception exception)
+        private void ShutdownCb(UvStream server, Exception exception)
+        {
+            server.Close(handle =>
+                {
+                    handle.Dispose();
+                    _acceptClose++;
+                });
+            _server.Close(handle =>
+                {
+                    handle.Dispose();
+                    _serverClose++;
+                });
+        }
+
+        private void PongWriteCb(UvStream server, Exception exception)
         {
             Debug.WriteLine("[Server]: PongWriteCb");
 
             AssertNoException(server, exception);
+
+            if (_pingReadCount >= Count)
+            {
+                Debug.WriteLine("[Server]: Shutdown");
+                server.Shutdown(ShutdownCb);
+            }
+            else
+            {
+                server.ReadStart(PingAllocCb, PingReadCb);
+            }
         }
 
         private void ConnectCb(UvTcp client, Exception exception)
@@ -140,7 +139,7 @@ namespace NetUv.Test
 
         private UvBuffer PongAllocCb(int suggestedBufferSize)
         {
-            var offset = _currentCount * Pong.Length;
+            var offset = _pongReadCount * Pong.Length;
             var count = Pong.Length;
 
             Debug.WriteLine("[Client]: PongAllocCb offset={0} count={1}",
@@ -153,36 +152,23 @@ namespace NetUv.Test
         {
             Debug.WriteLine("[Client]: PongReadCb read={0}", read);
 
-            if (read < 0)
-            {
-                client.Close(handle =>
-                                {
-                                    handle.Dispose();
-                                    _clientClose++;
+            Assert.AreEqual(Pong.Length, read);
 
-                                    if (read != UvStream.EOF)
-                                    {
-                                        Assert.Fail("Pong read failed.");
-                                    }
-                                });
-                return;
-            }
+            client.ReadStop();
+            _pongReadCount++;
 
-            if (read == 0)
+            if (_pongReadCount < Count)
             {
-                return;
-            }
-
-            if (_currentCount < Count)
-            {
-                client.Write(new UvBuffer(Pong, 0, Pong.Length), PongWriteCb);
+                client.Write(new UvBuffer(Ping, 0, Ping.Length), PingWriteCb);
             }
             else
             {
-                client.Close(handle => handle.Dispose());
+                client.Close(handle =>
+                                 {
+                                     handle.Dispose();
+                                     _clientClose++;
+                                 });
             }
-
-            _currentCount++;
         }
 
         private static void AssertNoException(UvHandle handle, Exception exception)
