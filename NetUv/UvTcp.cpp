@@ -38,8 +38,8 @@ namespace NetUv
         uv_tcp_t* tcp = (uv_tcp_t*)connect->data;
         delete connect;
 
-        GCHandle gcHandle = GCHandle::FromIntPtr(IntPtr(tcp->data));
-        UvTcp^ target = (UvTcp^)gcHandle.Target;
+        GCHandle gcThis = GCHandle::FromIntPtr(IntPtr(tcp->data));
+        UvTcp^ target = (UvTcp^)gcThis.Target;
 
         if (status != 0)
         {
@@ -65,8 +65,7 @@ namespace NetUv
 
         _connectCb = connectCb;
 
-        GCHandle gcHandle = GCHandle::Alloc(this);
-        _tcp->data = GCHandle::ToIntPtr(gcHandle).ToPointer();
+        _tcp->data = GetHandlePointer();
     }
 
     struct sockaddr_in UvTcp::Ip4Address(String^ ip, int port)
