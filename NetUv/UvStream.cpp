@@ -8,9 +8,9 @@ namespace NetUv
         _stream = stream;
     }
 
-    void UvStream::Accept(UvStream^ client)
+    void UvStream::Accept(UvStream^ stream)
     {
-        if (uv_accept(_stream, client->_stream) != 0)
+        if (uv_accept(_stream, stream->_stream) != 0)
         {
             UvException::Throw(_stream->loop);
         }
@@ -149,6 +149,14 @@ namespace NetUv
         _readCb = readCb;
 
         _stream->data = GetHandlePointer();
+    }
+
+    void UvStream::ReadStop()
+    {
+        if (uv_read_stop(_stream) != 0)
+        {
+            UvException::Throw(_stream->loop);
+        }
     }
 
     void ShutdownCb(uv_shutdown_t* shutdown, int status)

@@ -44,10 +44,11 @@ namespace NetUv
     {
     public:
         static initonly int EOF = -1;
-        void Accept(UvStream^ client);
+        void Accept(UvStream^ stream);
         void Listen(int backlog, UvStreamCb^ listenCb);
         void Write(UvBuffer^ buffer, UvStreamCb^ writeCb);
         void ReadStart(UvAllocCb^ allocCb, UvStreamReadCb^ readCb);
+        void ReadStop();
         void Shutdown(UvStreamCb^ shutdownCb);
     internal:
         UvStream(uv_stream_t* stream);
