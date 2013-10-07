@@ -34,11 +34,11 @@ namespace NetUv.Test
         [Test]
         public void PingPong()
         {
-            _server = _loop.InitUvTcp();
+            _server = (UvTcp)_loop.InitUvTcp();
             _server.Bind("0.0.0.0", Port);
             _server.Listen(1, ListenCb);
 
-            _client = _loop.InitUvTcp();
+            _client = (UvTcp)_loop.InitUvTcp();
             _client.Connect("127.0.0.1", Port, ConnectCb);
 
             _loop.Run();
@@ -56,7 +56,7 @@ namespace NetUv.Test
 
             AssertNoException(server, exception);
 
-            _accept = _loop.InitUvTcp();
+            _accept = (UvTcp)_loop.InitUvTcp();
             server.Accept(_accept);
 
             Debug.WriteLine("[Server]: ReadStart Ping");

@@ -9,10 +9,15 @@ namespace NetUv
     ref class UvHandle;
     public delegate void UvCloseCb(IDisposable^ handle);
 
-    public ref class UvHandle abstract
+    public interface class IUvHandle
+    {
+        void Close(UvCloseCb^ closeCb);
+    };
+
+    public ref class UvHandle abstract : IUvHandle
     {
     public:
-        void Close(UvCloseCb^ closeCb);
+        virtual void Close(UvCloseCb^ closeCb);
     internal:
         UvHandle(uv_handle_t* handle);
         void* GetHandlePointer();
@@ -40,16 +45,26 @@ namespace NetUv
     public delegate void UvStreamCb(UvStream^ stream, Exception^ exception);
     public delegate void UvStreamReadCb(UvStream^ stream, int read, UvBuffer^ buffer);
 
-    public ref class UvStream abstract : UvHandle
+    public interface class IUvStream : IUvHandle
     {
-    public:
-        static initonly int EOF = -1;
         void Accept(UvStream^ stream);
         void Listen(int backlog, UvStreamCb^ listenCb);
         void Write(UvBuffer^ buffer, UvStreamCb^ writeCb);
         void ReadStart(UvAllocCb^ allocCb, UvStreamReadCb^ readCb);
         void ReadStop();
         void Shutdown(UvStreamCb^ shutdownCb);
+    };
+
+    public ref class UvStream abstract : UvHandle, IUvStream
+    {
+    public:
+        static initonly int EOF = -1;
+        virtual void Accept(UvStream^ stream);
+        virtual void Listen(int backlog, UvStreamCb^ listenCb);
+        virtual void Write(UvBuffer^ buffer, UvStreamCb^ writeCb);
+        virtual void ReadStart(UvAllocCb^ allocCb, UvStreamReadCb^ readCb);
+        virtual void ReadStop();
+        virtual void Shutdown(UvStreamCb^ shutdownCb);
     internal:
         UvStream(uv_stream_t* stream);
         UvStreamCb^ _listenCb;
@@ -66,11 +81,17 @@ namespace NetUv
     ref class UvTcp;
     public delegate void UvTcpCb(UvTcp^ tcp, Exception^ exception);
 
-    public ref class UvTcp sealed : UvStream
+    public interface class IUvTcp : IUvStream
     {
-    public:
         void Bind(String^ ip, int port);
         void Connect(String^ ip, int port, UvTcpCb^ connectCb);
+    };
+
+    public ref class UvTcp sealed : UvStream, IUvTcp
+    {
+    public:
+        virtual void Bind(String^ ip, int port);
+        virtual void Connect(String^ ip, int port, UvTcpCb^ connectCb);
         ~UvTcp();
     internal:
         UvTcp(uv_tcp_t* tcp);
@@ -81,14 +102,20 @@ namespace NetUv
         !UvTcp();
     };
 
-    public ref class UvLoop sealed
+    public interface class IUvLoop
+    {
+        void Run();
+        IUvTcp^ InitUvTcp();
+    };
+
+    public ref class UvLoop sealed : IUvLoop
     {
     public:
         UvLoop();
         ~UvLoop();
         !UvLoop();
-        void Run();
-        UvTcp^ InitUvTcp();
+        virtual void Run();
+        virtual IUvTcp^ InitUvTcp();
     private:
         uv_loop_t* _loop;
     };

@@ -122,7 +122,7 @@ namespace NetUv
             if (nread > 0)
             {
                 array<byte>^ buffer = (array<byte>^)gcReadBuf.Target;
-                target->_readCb(target, (int)nread, gcnew UvBuffer(buffer, 0, nread));
+                target->_readCb(target, (int)nread, gcnew UvBuffer(buffer, 0, (int)nread));
             }
             else
             {

@@ -26,7 +26,7 @@ namespace NetUv
         uv_run(_loop, UV_RUN_DEFAULT);
     }
 
-    UvTcp^ UvLoop::InitUvTcp()
+    IUvTcp^ UvLoop::InitUvTcp()
     {
         uv_tcp_t* tcp = new uv_tcp_t();
 
