@@ -6,7 +6,6 @@ using namespace System::Runtime::InteropServices;
 
 namespace NetUv
 {
-    ref class UvHandle;
     public delegate void UvCloseCb(IDisposable^ handle);
 
     public interface class IUvHandle
