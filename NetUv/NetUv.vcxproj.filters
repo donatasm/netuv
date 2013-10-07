@@ -10,5 +10,6 @@
     <ClCompile Include="UvBuffer.cpp" />
     <ClCompile Include="UvHandle.cpp" />
     <ClCompile Include="UvStream.cpp" />
+    <ClCompile Include="UvAsync.cpp" />
   </ItemGroup>
 </Project>

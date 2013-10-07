@@ -29,13 +29,12 @@ namespace NetUv
     IUvTcp^ UvLoop::InitUvTcp()
     {
         uv_tcp_t* tcp = new uv_tcp_t();
+        return gcnew UvTcp(_loop, tcp);
+    }
 
-        if (uv_tcp_init(_loop, tcp) != 0)
-        {
-            delete tcp;
-            UvException::Throw(_loop);
-        }
-
-        return gcnew UvTcp(tcp);
+    IUvAsync^ UvLoop::InitUvAsync(UvAsyncCb^ asyncCb)
+    {
+        uv_async_t* async = new uv_async_t();
+        return gcnew UvAsync(_loop, async, asyncCb);
     }
 }

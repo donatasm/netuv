@@ -2,10 +2,16 @@
 
 namespace NetUv
 {
-    UvTcp::UvTcp(uv_tcp_t* tcp)
+    UvTcp::UvTcp(uv_loop_t* loop, uv_tcp_t* tcp)
         : UvStream((uv_stream_t*)tcp)
     {
         _tcp = tcp;
+
+        if (uv_tcp_init(loop, tcp) != 0)
+        {
+            delete tcp;
+            UvException::Throw(loop);
+        }
     }
 
     UvTcp::~UvTcp()

@@ -94,12 +94,33 @@ namespace NetUv
         virtual void Connect(String^ ip, int port, UvTcpCb^ connectCb);
         ~UvTcp();
     internal:
-        UvTcp(uv_tcp_t* tcp);
+        UvTcp(uv_loop_t*, uv_tcp_t* tcp);
         UvTcpCb^ _connectCb;
     private:
         uv_tcp_t* _tcp;
         static struct sockaddr_in Ip4Address(String^ ip, int port);
         !UvTcp();
+    };
+
+    public interface class IUvAsync : IUvHandle, IDisposable
+    {
+        void Send();
+    };
+
+    ref class UvAsync;
+    public delegate void UvAsyncCb(UvAsync^ async, Exception^ exception);
+
+    public ref class UvAsync : UvHandle, IUvAsync
+    {
+    public:
+        virtual void Send();
+        ~UvAsync();
+    internal:
+        UvAsync(uv_loop_t* loop, uv_async_t* async, UvAsyncCb^ asyncCb);
+        UvAsyncCb^ _asyncCb;
+    private:
+        uv_async_t* _async;
+        !UvAsync();
     };
 
     public interface class IUvLoop
@@ -116,6 +137,7 @@ namespace NetUv
         !UvLoop();
         virtual void Run();
         virtual IUvTcp^ InitUvTcp();
+        virtual IUvAsync^ InitUvAsync(UvAsyncCb^ asyncCb);
     private:
         uv_loop_t* _loop;
     };
