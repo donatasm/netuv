@@ -126,6 +126,7 @@ namespace NetUv
     {
         void Run();
         IUvTcp^ InitUvTcp();
+        IUvAsync^ InitUvAsync(UvAsyncCb^ asyncCb);
     };
 
     public ref class UvLoop sealed : IUvLoop

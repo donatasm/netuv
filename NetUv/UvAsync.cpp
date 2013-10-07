@@ -36,7 +36,8 @@ namespace NetUv
     {
         if (uv_async_send(_async) != 0)
         {
-            UvException::Throw(_async->loop);
+            // it is not thread safe to access loop here
+            throw gcnew UvException("Async send failed.", nullptr);
         }
     }
 
