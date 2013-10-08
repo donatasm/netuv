@@ -138,6 +138,7 @@ namespace NetUv
         virtual void Run();
         virtual IUvTcp^ InitUvTcp();
         virtual IUvAsync^ InitUvAsync(UvAsyncCb^ asyncCb);
+        static initonly UvLoop^ Default = gcnew UvLoop();
     private:
         uv_loop_t* _loop;
     };

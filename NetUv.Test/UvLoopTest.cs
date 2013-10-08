@@ -21,5 +21,11 @@ namespace NetUv.Test
                 loop.Run();
             }
         }
+
+        [Test]
+        public void DefaultLoop()
+        {
+            Assert.IsNotNull(UvLoop.Default);
+        }
     }
 }
