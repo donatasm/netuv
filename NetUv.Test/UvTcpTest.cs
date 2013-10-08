@@ -9,7 +9,7 @@ namespace NetUv.Test
         public void ConnectThrowsUvException()
         {
             UvException uvException = null;
-            UvTcp uvTcp = null;
+            IUvTcp uvTcp = null;
             var tcpClosed = false;
 
             using (var loop = new UvLoop())

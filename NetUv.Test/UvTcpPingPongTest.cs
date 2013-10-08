@@ -117,7 +117,7 @@ namespace NetUv.Test
             }
         }
 
-        private void ConnectCb(UvTcp client, Exception exception)
+        private void ConnectCb(IUvTcp client, Exception exception)
         {
             Debug.WriteLine("[Client]: ConnectCb");
 
@@ -171,7 +171,7 @@ namespace NetUv.Test
             }
         }
 
-        private static void AssertNoException(UvHandle handle, Exception exception)
+        private static void AssertNoException(IUvHandle handle, Exception exception)
         {
             if (exception != null)
             {

@@ -77,8 +77,8 @@ namespace NetUv
         initonly uv_stream_t* _stream;
     };
 
-    ref class UvTcp;
-    public delegate void UvTcpCb(UvTcp^ tcp, Exception^ exception);
+    interface class IUvTcp;
+    public delegate void UvTcpCb(IUvTcp^ tcp, Exception^ exception);
 
     public interface class IUvTcp : IUvStream
     {
