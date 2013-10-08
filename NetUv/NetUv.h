@@ -106,8 +106,8 @@ namespace NetUv
         void Send();
     };
 
-    ref class UvAsync;
-    public delegate void UvAsyncCb(UvAsync^ async, Exception^ exception);
+    interface class IUvAsync;
+    public delegate void UvAsyncCb(IUvAsync^ async, Exception^ exception);
 
     public ref class UvAsync : UvHandle, IUvAsync
     {
