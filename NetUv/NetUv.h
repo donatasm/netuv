@@ -34,6 +34,9 @@ namespace NetUv
     {
     public:
         UvBuffer(array<byte>^ buffer, int offset, int count);
+        property int Offset { int get(); }
+        property int Count { int get(); }
+        property array<byte>^ Array { array<byte>^ get(); };
     internal:
         initonly array<byte>^ _buffer;
         initonly int _offset;

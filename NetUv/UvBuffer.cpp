@@ -33,4 +33,19 @@ namespace NetUv
         _offset = offset;
         _count = count;
     }
+
+    int UvBuffer::Offset::get()
+    {
+        return _offset;
+    }
+
+    int UvBuffer::Count::get()
+    {
+        return _count;
+    }
+
+    array<byte>^ UvBuffer::Array::get()
+    {
+        return _buffer;
+    }
 }
