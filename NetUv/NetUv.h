@@ -41,6 +41,8 @@ namespace NetUv
         initonly array<byte>^ _buffer;
         initonly int _offset;
         initonly int _count;
+    private:
+        static String^ ParamsMessage(array<byte>^ buffer, int offset, int count);
     };
 
     ref class UvStream;
